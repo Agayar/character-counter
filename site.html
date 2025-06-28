@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Character & Word Counter Tool</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    background: linear-gradient(90deg, #0d6efd, #6610f2);
+    color: white;
+    text-align: center;
+    padding: 2rem 1rem;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  }
+  header h1 {
+    margin: 0 0 0.25rem;
+    font-size: 2.8rem;
+    letter-spacing: 1.2px;
+  }
+  header p {
+    margin: 0;
+    font-size: 1.3rem;
+    opacity: 0.85;
+  }
+
+  main {
+    flex-grow: 1;
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    display: grid;
+    grid-template-columns: 1fr 250px 250px;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "tool ad-left ad-right"
+      "banner banner banner";
+    gap: 2rem;
+  }
+  
+  .tool-container {
+    grid-area: tool;
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+  }
+  textarea {
+    flex-grow: 1;
+    resize: vertical;
+    min-height: 220px;
+    font-size: 1.25rem;
+    padding: 1rem;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: #6610f2;
+    box-shadow: 0 0 12px #6610f2aa;
+  }
+  
+  .results {
+    margin-top: 1.5rem;
+    font-size: 1.4rem;
+    color: #6610f2;
+    font-weight: 700;
+    user-select: none;
+  }
+  
+  .ad-box {
+    position: relative;
+    background: linear-gradient(135deg, #8e2de2, #4a00e0);
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+    padding: 1rem;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+    overflow: hidden;
+  }
+  .ad-box:hover {
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 18px 38px rgba(74,0,224,0.85);
+  }
+
+  /* Teşvik mesajları */
+  .ad-box::after {
+    content: attr(data-msg);
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #d0c6ffcc;
+    text-shadow: 0 0 3px rgba(0,0,0,0.6);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  .ad-box:hover::after {
+    opacity: 1;
+  }
+  
+  /* Sol ve sağ reklam kutuları */
+  .ad-left {
+    grid-area: ad-left;
+    height: 300px;
+  }
+  .ad-right {
+    grid-area: ad-right;
+    height: 300px;
+  }
+  /* Alt banner reklam */
+  .ad-banner {
+    grid-area: banner;
+    height: 100px;
+    font-size: 1.2rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    main {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto auto;
+      grid-template-areas:
+        "tool"
+        "ad-left"
+        "ad-right"
+        "banner";
+      gap: 1.5rem;
+      max-width: 95%;
+    }
+    .ad-left, .ad-right, .ad-banner {
+      height: 150px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Character & Word Counter Tool</h1>
+  <p>Type or paste your text below to see live character and word counts.</p>
+</header>
+
+<main>
+  <section class="tool-container" aria-label="Text input and counter">
+    <textarea id="text-input" placeholder="Start typing your text here..."></textarea>
+    <div class="results" aria-live="polite" aria-atomic="true">
+      Characters: <span id="char-count">0</span> | Words: <span id="word-count">0</span>
+    </div>
+  </section>
+  
+  <aside class="ad-box ad-left" role="banner" tabindex="0" aria-label="Advertisement Space Left" data-msg="Click here for great deals!">
+    Google AdSense Ad Space 1<br>(300x300)
+  </aside>
+  
+  <aside class="ad-box ad-right" role="banner" tabindex="0" aria-label="Advertisement Space Right" data-msg="Don't miss these offers!">
+    Google AdSense Ad Space 2<br>(300x300)
+  </aside>
+  
+  <aside class="ad-box ad-banner" role="banner" tabindex="0" aria-label="Advertisement Space Bottom" data-msg="Check out our sponsors!">
+    Google AdSense Ad Space 3<br>(970x90)
+  </aside>
+</main>
+
+<script>
+  const textInput = document.getElementById('text-input');
+  const charCount = document.getElementById('char-count');
+  const wordCount = document.getElementById('word-count');
+
+  textInput.addEventListener('input', () => {
+    const text = textInput.value;
+    charCount.textContent = text.length;
+    wordCount.textContent = text.trim().split(/\s+/).filter(Boolean).length;
+  });
+</script>
+
+</body>
+</html>
